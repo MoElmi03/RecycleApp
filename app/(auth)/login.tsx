@@ -1,11 +1,21 @@
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { doc, setDoc } from "firebase/firestore";
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { loginUser } from '../../lib/auth';
+import { db } from "../../lib/firebase";
 import { useFacebookAuth, useGoogleAuth } from '../../lib/socialAuth';
+
+await setDoc(doc(db,"users",user.uid),{
+name: user.displayName || "Player",
+points: 0,
+weeklyPoints: 0,
+level: 1,
+photoURL: user.photoURL || ""
+})
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
