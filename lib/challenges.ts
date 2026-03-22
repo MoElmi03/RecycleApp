@@ -1,60 +1,42 @@
+// Unified challenge definitions — IDs match what progress.ts tracks
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import { awardPoints, computeLevel } from './points';
+import { computeLevel } from './progress';
 
 export interface Challenge {
   id: string;
   title: string;
+  description: string;
   points: number;
   icon: string;
   type: 'daily' | 'weekly';
+  metric: 'lessons' | 'quizzes';
+  target: number;
 }
 
 export const ALL_CHALLENGES: Challenge[] = [
   // Daily
-  { id: 'd1', title: 'Recycle 3 plastic bottles', points: 10, icon: '♻️', type: 'daily' },
-  { id: 'd2', title: 'Identify the Contaminant', points: 30, icon: '🔍', type: 'daily' },
-  { id: 'd3', title: 'Complete a Recycling Quiz', points: 25, icon: '📝', type: 'daily' },
+  { id: 'first_lesson',  title: 'First Step',       description: 'Complete your first lesson',   points: 10, icon: '📖', type: 'daily',  metric: 'lessons', target: 1  },
+  { id: 'first_quiz',    title: 'Quiz Starter',      description: 'Complete your first quiz',     points: 10, icon: '🎯', type: 'daily',  metric: 'quizzes', target: 1  },
+  { id: 'five_lessons',  title: 'Study Session',     description: 'Complete 5 lessons in total',  points: 25, icon: '📚', type: 'daily',  metric: 'lessons', target: 5  },
   // Weekly
-  { id: 'w1', title: 'Earn 100 Points This Week', points: 100, icon: '🏆', type: 'weekly' },
-  { id: 'w2', title: 'Complete All Daily Challenges', points: 75, icon: '⭐', type: 'weekly' },
+  { id: 'five_quizzes',  title: 'Quiz Master',       description: 'Complete 5 quizzes in total',  points: 50, icon: '🏆', type: 'weekly', metric: 'quizzes', target: 5  },
+  { id: 'ten_lessons',   title: 'Knowledge Seeker',  description: 'Complete 10 lessons in total', points: 75, icon: '🌟', type: 'weekly', metric: 'lessons', target: 10 },
+  { id: 'ten_quizzes',   title: 'Quiz Champion',     description: 'Complete 10 quizzes in total', points: 75, icon: '🥇', type: 'weekly', metric: 'quizzes', target: 10 },
 ];
 
-/**
- * Mark a challenge as complete for the current user.
- * Awards the points, logs telemetry, and updates level in Firestore.
- * Returns false if the challenge was already completed this week.
- */
 export async function completeChallenge(
   challenge: Challenge,
-  completedIds: string[]
+  completedIds: string[],
 ): Promise<boolean> {
   if (completedIds.includes(challenge.id)) return false;
-
   const uid = auth.currentUser?.uid;
   if (!uid) return false;
 
-  // Award points (also logs telemetry internally)
-  await awardPoints(challenge.points, `challenge:${challenge.id}`);
-
-  // Mark challenge as completed & recalculate level
-  const userRef = doc(db, 'users', uid);
-
-  // We need the new totalPoints to recompute level — fetch optimistically
-  // (level update is best-effort; not critical for UX)
-  const newCompleted = [...completedIds, challenge.id];
-  const allDailyDone = ALL_CHALLENGES
-    .filter(c => c.type === 'daily')
-    .every(c => newCompleted.includes(c.id));
-
-  await updateDoc(userRef, {
+  const ref = doc(db, 'users', uid);
+  await updateDoc(ref, {
     completedChallenges: arrayUnion(challenge.id),
-    // Recalculate level based on estimated new points
-    level: computeLevel(0), // will be refreshed by real-time listener on home screen
-    ...(allDailyDone && !completedIds.includes('w2')
-      ? { completedChallenges: arrayUnion(challenge.id, 'w2') }
-      : {}),
+    level: computeLevel(0), // will be refreshed by real-time listener
   });
-
   return true;
 }

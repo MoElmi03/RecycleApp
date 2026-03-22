@@ -1,29 +1,31 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
 } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 export async function registerUser(email: string, password: string) {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-  // Consistent field names used everywhere in the app
-  await setDoc(doc(db, 'users', userCredential.user.uid), {
-    name: email.split('@')[0],
+  await setDoc(doc(db, 'users', cred.user.uid), {
+    name:                email.split('@')[0],
     email,
-    photoURL: '',
-    totalPoints: 0,
-    weeklyPoints: 0,
-    currentStreak: 0,
-    level: 1,
-    completedChallenges: [],   // array of challenge IDs completed this week
-    lastWeekReset: serverTimestamp(),
-    joinDate: serverTimestamp(),
+    photoURL:            '',
+    totalPoints:         0,
+    weeklyPoints:        0,
+    currentStreak:       0,
+    level:               1,
+    completedChallenges: [],
+    completedLessons:    [],
+    completedQuizzes:    [],
+    quizScores:          {},
+    lastWeekReset:       serverTimestamp(),
+    joinDate:            serverTimestamp(),
   });
 
-  return userCredential;
+  return cred;
 }
 
 export function loginUser(email: string, password: string) {
