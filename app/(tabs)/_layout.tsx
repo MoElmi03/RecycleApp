@@ -12,35 +12,31 @@ export default function TabsLayout() {
       tabBarItemStyle: styles.tabBarItem,
       tabBarLabelStyle: styles.tabBarLabel,
     }}>
-      {/* ── Visible tabs ── */}
+
+      {/* ── VISIBLE tabs (only these 5 show in nav bar) ── */}
       <Tabs.Screen name="home"        options={{ tabBarLabel: 'Home',        tabBarIcon: ({ color, size }) => <Feather name="home"        color={color} size={size} />, tabBarActiveBackgroundColor: '#606C38' }} />
       <Tabs.Screen name="challenge"   options={{ tabBarLabel: 'Challenge',   tabBarIcon: ({ color, size }) => <Feather name="zap"         color={color} size={size} />, tabBarActiveBackgroundColor: '#606C38' }} />
       <Tabs.Screen name="guide"       options={{ tabBarLabel: 'Guide',       tabBarIcon: ({ color, size }) => <Feather name="book"        color={color} size={size} />, tabBarActiveBackgroundColor: '#606C38' }} />
       <Tabs.Screen name="leaderboard" options={{ tabBarLabel: 'Leaderboard', tabBarIcon: ({ color, size }) => <Feather name="bar-chart-2" color={color} size={size} />, tabBarActiveBackgroundColor: '#606C38' }} />
       <Tabs.Screen name="profile"     options={{ tabBarLabel: 'Profile',     tabBarIcon: ({ color, size }) => <Feather name="user"        color={color} size={size} />, tabBarActiveBackgroundColor: '#606C38' }} />
 
-      {/* ── Category overview screens (hidden from tab bar) ── */}
-      <Tabs.Screen name="GlassAndMetal"        options={{ href: null }} />
-      <Tabs.Screen name="PlasticItems"         options={{ href: null }} />
-      <Tabs.Screen name="PaperCardboard"       options={{ href: null }} />
-      <Tabs.Screen name="FoodOrganicWaste"     options={{ href: null }} />
-      <Tabs.Screen name="CommonContaminants"   options={{ href: null }} />
-      <Tabs.Screen name="LocalRules"           options={{ href: null }} />
-
-      {/* ── Universal chapter detail (replaces all individual chapter files) ── */}
-      <Tabs.Screen name="ChapterDetail"        options={{ href: null }} />
-
-      {/* ── Lesson & Quiz players ── */}
-      <Tabs.Screen name="LessonPlayer"         options={{ href: null }} />
-      <Tabs.Screen name="QuizPlayer"           options={{ href: null }} />
-
-      {/* ── Legacy chapter screens kept for compatibility ── */}
-      <Tabs.Screen name="GlassAndMetalChapters"       options={{ href: null }} />
-      <Tabs.Screen name="PlasticItemsChapters"        options={{ href: null }} />
-      <Tabs.Screen name="PaperCardboardChapters"      options={{ href: null }} />
-      <Tabs.Screen name="FoodOrganicWasteChapters"    options={{ href: null }} />
-      <Tabs.Screen name="CommonContaminantsChapters"  options={{ href: null }} />
-      <Tabs.Screen name="LocalRulesChapters"          options={{ href: null }} />
+      {/* ── HIDDEN screens (href: null removes them from the nav bar) ── */}
+      <Tabs.Screen name="explore"                    options={{ href: null }} />
+      <Tabs.Screen name="GlassAndMetal"              options={{ href: null }} />
+      <Tabs.Screen name="PlasticItems"               options={{ href: null }} />
+      <Tabs.Screen name="PaperCardboard"             options={{ href: null }} />
+      <Tabs.Screen name="FoodOrganicWaste"           options={{ href: null }} />
+      <Tabs.Screen name="CommonContaminants"         options={{ href: null }} />
+      <Tabs.Screen name="LocalRules"                 options={{ href: null }} />
+      <Tabs.Screen name="ChapterDetail"              options={{ href: null }} />
+      <Tabs.Screen name="LessonPlayer"               options={{ href: null }} />
+      <Tabs.Screen name="QuizPlayer"                 options={{ href: null }} />
+      <Tabs.Screen name="GlassAndMetalChapters"      options={{ href: null }} />
+      <Tabs.Screen name="PlasticItemsChapters"       options={{ href: null }} />
+      <Tabs.Screen name="PaperCardboardChapters"     options={{ href: null }} />
+      <Tabs.Screen name="FoodOrganicWasteChapters"   options={{ href: null }} />
+      <Tabs.Screen name="CommonContaminantsChapters" options={{ href: null }} />
+      <Tabs.Screen name="LocalRulesChapters"         options={{ href: null }} />
     </Tabs>
   );
 }
