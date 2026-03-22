@@ -25,7 +25,7 @@ const EMOJI_COLORS: Record<string, string> = {
   '🧻':'#F3E5F5','🍔':'#FFF9C4','☀️':'#FFF9C4','🔎':'#E8F4FD','1️⃣':'#E8F4FD',
   '2️⃣':'#E8F4FD','3️⃣':'#FDECEA','6️⃣':'#FDECEA','7️⃣':'#FDECEA','🔬':'#E8F4FD',
   '🏪':'#FFF9C4','📱':'#E8F4FD','🧹':'#E8F4FD','🌽':'#FFF9C4','🧅':'#FFF9C4',
-  '🥩':'#FDECEA','🫙':'#D4EDDA','🍞':'#FFF9C4','🧻':'#F3E5F5','🛍':'#F3E5F5',
+  '🥩':'#FDECEA','?':'#D4EDDA','🍞':'#FFF9C4','roll':'#F3E5F5','🛍':'#F3E5F5',
 };
 
 function cardColor(emoji: string) {

@@ -1,12 +1,12 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const CHAPTERS = [
-  { id: 'understanding-plastic-types',      number: '01', label: 'Understanding Plastic Types',      image: null },
-  { id: 'preparing-plastics-for-recycling', number: '02', label: 'Preparing Plastics for Recycling', image: null },
-  { id: 'plastic-contamination',            number: '03', label: 'Plastic Contamination',            image: null },
+  { id: 'understanding-plastic-types', number: '01', label: 'Understanding Plastic Types', emoji: '🧴' },
+  { id: 'preparing-plastics-for-recycling', number: '02', label: 'Preparing Plastics', emoji: '♻️' },
+  { id: 'plastic-contamination', number: '03', label: 'Plastic Contamination', emoji: '⚠️' },
 ];
 
 export default function PlasticItemsScreen() {
@@ -20,84 +20,50 @@ export default function PlasticItemsScreen() {
         <Text style={styles.navTitle}>Plastic Items</Text>
         <View style={{ width: 38 }} />
       </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={styles.heroBox}>
-          {/* <Image source={require('../../assets/images/plastic-hero.png')} style={styles.heroImage} /> */}
-          <View style={styles.heroPlaceholder}>
-            <Text style={styles.heroPlaceholderText}>🧴 🫙 ♻️</Text>
-          </View>
+          <Text style={styles.heroText}>🧴 ♻️ 🚫</Text>
         </View>
-
         <View style={styles.descBox}>
           <Text style={styles.descTitle}>Learn about Plastic Items</Text>
-          <Text style={styles.descSubtitle}>Explore your Grade 10 Biology topics with fun lessons, quizzes, and games.</Text>
+          <Text style={styles.descSub}>Tap a chapter to start your lessons and quizzes.</Text>
         </View>
-
-        <View style={styles.chapterList}>
-          {CHAPTERS.map((ch, index) => (
+        <View style={styles.list}>
+          {CHAPTERS.map(ch => (
             <TouchableOpacity
               key={ch.id}
-              style={styles.chapterRow}
+              style={styles.row}
               activeOpacity={0.75}
-              onPress={() => router.push(`/(tabs)/PlasticItemsChapters?chapter=${ch.id}` as any)}
+              onPress={() => router.push(("/(tabs)/ChapterDetail?chapter=" + ch.id) as any)}
             >
-              <View style={styles.chapterThumb}>
-                {ch.image ? (
-                  <Image source={ch.image} style={styles.chapterThumbImage} />
-                ) : (
-                  <View style={styles.chapterThumbPlaceholder}>
-                    <Text style={{ fontSize: 20 }}>{index === 0 ? '🧴' : index === 1 ? '♻️' : '⚠️'}</Text>
-                  </View>
-                )}
+              <View style={styles.thumb}><Text style={{ fontSize: 26 }}>{ch.emoji}</Text></View>
+              <View style={styles.info}>
+                <Text style={styles.num}>Chapter {ch.number}</Text>
+                <Text style={styles.label}>{ch.label}</Text>
               </View>
-              <View style={styles.chapterInfo}>
-                <Text style={styles.chapterNumber}>Chapter {ch.number}</Text>
-                <Text style={styles.chapterLabel}>{ch.label}</Text>
-              </View>
-              <View style={styles.chapterArrow}>
-                <Feather name="chevron-right" size={18} color="#606C38" />
-              </View>
+              <Feather name="chevron-right" size={20} color="#606C38" />
             </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.startBtn}
-          onPress={() => router.push(`/(tabs)/PlasticItemsChapters?chapter=${CHAPTERS[0].id}` as any)}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.startBtnText}>Start Lesson</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 20, paddingBottom: 12, backgroundColor: '#fff' },
+  nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 20, paddingBottom: 12 },
   backBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center' },
   navTitle: { fontSize: 17, fontWeight: '700', color: '#333' },
-  heroBox: { marginHorizontal: 20, marginTop: 8, borderRadius: 18, overflow: 'hidden' },
-  heroImage: { width: '100%', height: 180, resizeMode: 'cover' },
-  heroPlaceholder: { width: '100%', height: 180, backgroundColor: '#E8F0DC', justifyContent: 'center', alignItems: 'center', borderRadius: 18 },
-  heroPlaceholderText: { fontSize: 48, letterSpacing: 8 },
-  descBox: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 },
-  descTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A', marginBottom: 6 },
-  descSubtitle: { fontSize: 14, color: '#777', lineHeight: 20 },
-  chapterList: { paddingHorizontal: 20, marginTop: 16 },
-  chapterRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  chapterThumb: { width: 52, height: 52, borderRadius: 10, overflow: 'hidden', marginRight: 14 },
-  chapterThumbImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-  chapterThumbPlaceholder: { width: 52, height: 52, borderRadius: 10, backgroundColor: '#E8F0DC', justifyContent: 'center', alignItems: 'center' },
-  chapterInfo: { flex: 1 },
-  chapterNumber: { fontSize: 11, color: '#999', fontWeight: '600', marginBottom: 2 },
-  chapterLabel: { fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
-  chapterArrow: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center' },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, paddingBottom: 34, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#F0F0F0' },
-  startBtn: { backgroundColor: '#606C38', paddingVertical: 18, borderRadius: 16, alignItems: 'center' },
-  startBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  heroBox: { marginHorizontal: 20, marginTop: 8, borderRadius: 18, height: 160, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' },
+  heroText: { fontSize: 44, letterSpacing: 8 },
+  descBox: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 8 },
+  descTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A', marginBottom: 4 },
+  descSub: { fontSize: 13, color: '#777', lineHeight: 19 },
+  list: { paddingHorizontal: 20, marginTop: 8 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
+  thumb: { width: 52, height: 52, borderRadius: 12, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center', marginRight: 14 },
+  info: { flex: 1 },
+  num: { fontSize: 11, color: '#999', fontWeight: '600', marginBottom: 2 },
+  label: { fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
 });

@@ -205,17 +205,23 @@ export default function ChapterDetail() {
   const { chapter } = useLocalSearchParams<{ chapter: string }>();
   const cfg = CHAPTERS[chapter ?? ''];
 
-  const [activeTab, setActiveTab]   = useState<Tab>('lesson');
-  const [completedL, setCompletedL] = useState<string[]>([]);
-  const [completedQ, setCompletedQ] = useState<string[]>([]);
-  const [scores, setScores]         = useState<Record<string, number>>({});
-  const [loading, setLoading]       = useState(true);
+  const [activeTab, setActiveTab]       = useState<Tab>('lesson');
+  const [selectedId, setSelectedId]     = useState<string | null>(null);
+  const [completedL, setCompletedL]     = useState<string[]>([]);
+  const [completedQ, setCompletedQ]     = useState<string[]>([]);
+  const [scores, setScores]             = useState<Record<string, number>>({});
+  const [loading, setLoading]           = useState(true);
+
+  // When chapter or tab changes, reset selection to first part
+  useEffect(() => {
+    if (cfg) setSelectedId(cfg.parts[0].id);
+  }, [chapter, activeTab]);
 
   useEffect(() => {
     getUserProgress().then(p => {
       if (p) {
-        setCompletedL(p.completedLessons);
-        setCompletedQ(p.completedQuizzes);
+        setCompletedL(p.completedLessons ?? []);
+        setCompletedQ(p.completedQuizzes ?? []);
         setScores(p.quizScores ?? {});
       }
       setLoading(false);
@@ -236,22 +242,22 @@ export default function ChapterDetail() {
   const isLesson       = activeTab === 'lesson';
   const allLessonsDone = cfg.parts.every(p => completedL.includes(p.id));
   const allQuizzesDone = cfg.parts.every(p => completedQ.includes(p.id));
+  const activeId       = selectedId ?? cfg.parts[0].id;
+  const returnToParam  = encodeURIComponent(`/(tabs)/ChapterDetail?chapter=${chapter}`);
 
-  // Build a stable returnTo param that the players will decode
-  const returnToPath   = `/(tabs)/ChapterDetail?chapter=${chapter}`;
-  const returnToParam  = encodeURIComponent(returnToPath);
-
-  function navigateToPart(partId: string) {
+  function handleStart() {
     if (isLesson) {
-      router.push(`/(tabs)/LessonPlayer?id=${partId}&returnTo=${returnToParam}` as any);
+      router.push(`/(tabs)/LessonPlayer?id=${activeId}&returnTo=${returnToParam}` as any);
     } else {
-      router.push(`/(tabs)/QuizPlayer?id=${partId}&returnTo=${returnToParam}` as any);
+      router.push(`/(tabs)/QuizPlayer?id=${activeId}&returnTo=${returnToParam}` as any);
     }
   }
 
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
+
+      {/* Nav */}
       <View style={styles.nav}>
         <TouchableOpacity onPress={() => router.push(cfg.returnRoute as any)} style={styles.backBtn}>
           <Feather name="arrow-left" size={22} color="#333" />
@@ -260,7 +266,8 @@ export default function ChapterDetail() {
         <View style={{ width: 38 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 130 }}>
+
         {/* Hero */}
         <View style={[styles.heroBox, { backgroundColor: cfg.heroColor }]}>
           <Text style={styles.heroEmoji}>{cfg.heroEmoji}</Text>
@@ -282,7 +289,7 @@ export default function ChapterDetail() {
           <Text style={styles.subtitle}>{cfg.subtitle}</Text>
         </View>
 
-        {/* Progress summary */}
+        {/* Progress row */}
         {!loading && (
           <View style={styles.progressRow}>
             <View style={styles.progressItem}>
@@ -308,7 +315,7 @@ export default function ChapterDetail() {
           </View>
         )}
 
-        {/* Tabs */}
+        {/* Lesson / Quiz tabs */}
         <View style={styles.tabRow}>
           <TouchableOpacity
             style={[styles.tabBtn, isLesson && styles.tabBtnActive]}
@@ -316,7 +323,9 @@ export default function ChapterDetail() {
           >
             <Feather name="book-open" size={15} color={isLesson ? '#fff' : '#606C38'} style={{ marginRight: 6 }} />
             <Text style={[styles.tabLabel, isLesson && styles.tabLabelActive]}>Lesson</Text>
-            {allLessonsDone && <Feather name="check-circle" size={13} color={isLesson ? '#fff' : '#606C38'} style={{ marginLeft: 4 }} />}
+            {allLessonsDone && (
+              <Feather name="check-circle" size={13} color={isLesson ? '#fff' : '#606C38'} style={{ marginLeft: 4 }} />
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabBtn, !isLesson && styles.tabBtnActive]}
@@ -324,55 +333,92 @@ export default function ChapterDetail() {
           >
             <Feather name="help-circle" size={15} color={!isLesson ? '#fff' : '#606C38'} style={{ marginRight: 6 }} />
             <Text style={[styles.tabLabel, !isLesson && styles.tabLabelActive]}>Quiz</Text>
-            {allQuizzesDone && <Feather name="check-circle" size={13} color={!isLesson ? '#fff' : '#606C38'} style={{ marginLeft: 4 }} />}
+            {allQuizzesDone && (
+              <Feather name="check-circle" size={13} color={!isLesson ? '#fff' : '#606C38'} style={{ marginLeft: 4 }} />
+            )}
           </TouchableOpacity>
         </View>
 
-        {/* Parts list */}
+        {/* Instruction hint */}
+        <Text style={styles.hint}>Tap a part to select it, then press the button below</Text>
+
+        {/* Parts — tap to select, highlighted green when selected */}
         <View style={styles.partList}>
           {cfg.parts.map((part, idx) => {
-            const isDone  = isLesson ? completedL.includes(part.id) : completedQ.includes(part.id);
-            const score   = !isLesson ? scores[part.id] : undefined;
+            const isSelected  = activeId === part.id;
+            const isDoneL     = completedL.includes(part.id);
+            const isDoneQ     = completedQ.includes(part.id);
+            const isDone      = isLesson ? isDoneL : isDoneQ;
+            const score       = !isLesson ? scores[part.id] : undefined;
+
             return (
               <TouchableOpacity
                 key={part.id}
-                style={[styles.partRow, isDone && styles.partRowDone]}
-                activeOpacity={0.75}
-                onPress={() => navigateToPart(part.id)}
+                style={[
+                  styles.partRow,
+                  isSelected && styles.partRowSelected,
+                ]}
+                activeOpacity={0.7}
+                onPress={() => setSelectedId(part.id)}
               >
-                <View style={[styles.partThumb, isDone && styles.partThumbDone]}>
-                  {isDone
+                {/* Left thumb */}
+                <View style={[
+                  styles.partThumb,
+                  isSelected && styles.partThumbSelected,
+                  isDone && !isSelected && styles.partThumbDone,
+                ]}>
+                  {isDone && !isSelected
                     ? <Feather name="check" size={20} color="#fff" />
+                    : isSelected
+                    ? <Text style={{ fontSize: 22 }}>{part.emoji}</Text>
                     : <Text style={{ fontSize: 22 }}>{part.emoji}</Text>
                   }
                 </View>
+
+                {/* Info */}
                 <View style={styles.partInfo}>
-                  <Text style={styles.partNum}>Part 0{idx + 1}</Text>
-                  <Text style={styles.partLabel}>{part.label}</Text>
-                  {score !== undefined && (
+                  <Text style={[styles.partNum, isSelected && styles.partNumSelected]}>
+                    Part 0{idx + 1}
+                  </Text>
+                  <Text style={[styles.partLabel, isSelected && styles.partLabelSelected]}>
+                    {part.label}
+                  </Text>
+                  {isDone && (
+                    <Text style={styles.partDoneTag}>✓ Completed</Text>
+                  )}
+                  {score !== undefined && !isDone && (
                     <Text style={styles.partScore}>Best: {score}%</Text>
                   )}
                 </View>
-                <View style={[styles.partArrow, isDone && styles.partArrowDone]}>
-                  <Feather name={isDone ? 'refresh-cw' : 'chevron-right'} size={isDone ? 15 : 18} color="#606C38" />
+
+                {/* Right indicator */}
+                <View style={[styles.partArrow, isSelected && styles.partArrowSelected]}>
+                  {isSelected
+                    ? <Feather name="check" size={16} color="#fff" />
+                    : <Feather name="chevron-right" size={18} color="#999" />
+                  }
                 </View>
               </TouchableOpacity>
             );
           })}
         </View>
+
       </ScrollView>
 
-      {/* Footer CTA */}
+      {/* Footer — Start button navigates to selected part */}
       <View style={styles.footer}>
+        {selectedId && (
+          <Text style={styles.selectedHint}>
+            Selected: {cfg.parts.find(p => p.id === selectedId)?.label}
+          </Text>
+        )}
         <TouchableOpacity
           style={[styles.startBtn, isLesson ? styles.startBtnLesson : styles.startBtnQuiz]}
-          onPress={() => navigateToPart(cfg.parts[0].id)}
+          onPress={handleStart}
           activeOpacity={0.85}
         >
           <Text style={styles.startBtnText}>
-            {isLesson
-              ? (allLessonsDone ? '🔁 Revisit Lessons' : '▶ Start Lesson')
-              : (allQuizzesDone ? '🔁 Retry Quizzes'  : '🎯 Start Quiz')}
+            {isLesson ? '▶  Start Lesson' : '🎯  Start Quiz'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -381,45 +427,72 @@ export default function ChapterDetail() {
 }
 
 const styles = StyleSheet.create({
-  container:       { flex: 1, backgroundColor: '#fff' },
-  center:          { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', padding: 24 },
-  errorText:       { fontSize: 18, color: '#333', marginBottom: 16, fontWeight: '600' },
-  backLinkBtn:     { backgroundColor: '#606C38', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
-  backLinkText:    { color: '#fff', fontWeight: '700', fontSize: 15 },
-  nav:             { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 20, paddingBottom: 12 },
-  backBtn:         { width: 38, height: 38, borderRadius: 19, backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center' },
-  navTitle:        { fontSize: 17, fontWeight: '700', color: '#333', flex: 1, textAlign: 'center', marginHorizontal: 8 },
-  heroBox:         { marginHorizontal: 20, marginTop: 4, borderRadius: 20, height: 180, justifyContent: 'center', alignItems: 'center' },
-  heroEmoji:       { fontSize: 72 },
-  heroBadge:       { position: 'absolute', bottom: 12, flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, elevation: 2 },
-  heroBadgeText:   { fontSize: 12, fontWeight: '700', color: '#606C38' },
-  titleBox:        { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 4 },
-  title:           { fontSize: 20, fontWeight: '800', color: '#1A1A1A', marginBottom: 4 },
-  subtitle:        { fontSize: 13, color: '#888', lineHeight: 19 },
-  progressRow:     { flexDirection: 'row', marginHorizontal: 20, marginTop: 16, backgroundColor: '#F8F8F8', borderRadius: 16, paddingVertical: 14 },
-  progressItem:    { flex: 1, alignItems: 'center' },
-  progressNum:     { fontSize: 20, fontWeight: '800', color: '#283618' },
-  progressLbl:     { fontSize: 11, color: '#888', fontWeight: '600', marginTop: 2 },
-  progressDivider: { width: 1, backgroundColor: '#E0E0E0' },
-  tabRow:          { flexDirection: 'row', marginHorizontal: 20, marginTop: 16, backgroundColor: '#F2F2F2', borderRadius: 12, padding: 4, gap: 4 },
-  tabBtn:          { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10 },
-  tabBtnActive:    { backgroundColor: '#606C38' },
-  tabLabel:        { fontSize: 14, fontWeight: '600', color: '#606C38' },
-  tabLabelActive:  { color: '#fff' },
-  partList:        { paddingHorizontal: 20, marginTop: 14 },
-  partRow:         { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  partRowDone:     {},
-  partThumb:       { width: 48, height: 48, borderRadius: 12, backgroundColor: '#E8F0DC', justifyContent: 'center', alignItems: 'center', marginRight: 14 },
-  partThumbDone:   { backgroundColor: '#606C38' },
-  partInfo:        { flex: 1 },
-  partNum:         { fontSize: 11, color: '#999', fontWeight: '600', marginBottom: 2 },
-  partLabel:       { fontSize: 15, fontWeight: '600', color: '#1A1A1A' },
-  partScore:       { fontSize: 12, color: '#606C38', fontWeight: '700', marginTop: 2 },
-  partArrow:       { width: 32, height: 32, borderRadius: 16, backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center' },
-  partArrowDone:   { backgroundColor: '#E8F0DC' },
-  footer:          { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, paddingBottom: 34, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#F0F0F0' },
-  startBtn:        { paddingVertical: 18, borderRadius: 16, alignItems: 'center' },
-  startBtnLesson:  { backgroundColor: '#606C38' },
-  startBtnQuiz:    { backgroundColor: '#3D2B6B' },
-  startBtnText:    { color: '#fff', fontSize: 17, fontWeight: '700' },
+  container:          { flex: 1, backgroundColor: '#fff' },
+  center:             { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', padding: 24 },
+  errorText:          { fontSize: 18, color: '#333', marginBottom: 16, fontWeight: '600' },
+  backLinkBtn:        { backgroundColor: '#606C38', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  backLinkText:       { color: '#fff', fontWeight: '700', fontSize: 15 },
+
+  nav:                { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 20, paddingBottom: 12 },
+  backBtn:            { width: 38, height: 38, borderRadius: 19, backgroundColor: '#F2F2F2', justifyContent: 'center', alignItems: 'center' },
+  navTitle:           { fontSize: 17, fontWeight: '700', color: '#333', flex: 1, textAlign: 'center', marginHorizontal: 8 },
+
+  heroBox:            { marginHorizontal: 20, marginTop: 4, borderRadius: 20, height: 160, justifyContent: 'center', alignItems: 'center' },
+  heroEmoji:          { fontSize: 68 },
+  heroBadge:          { position: 'absolute', bottom: 12, flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, elevation: 2 },
+  heroBadgeText:      { fontSize: 12, fontWeight: '700', color: '#606C38' },
+
+  titleBox:           { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 4 },
+  title:              { fontSize: 20, fontWeight: '800', color: '#1A1A1A', marginBottom: 4 },
+  subtitle:           { fontSize: 13, color: '#888', lineHeight: 19 },
+
+  progressRow:        { flexDirection: 'row', marginHorizontal: 20, marginTop: 14, backgroundColor: '#F8F8F8', borderRadius: 16, paddingVertical: 12 },
+  progressItem:       { flex: 1, alignItems: 'center' },
+  progressNum:        { fontSize: 18, fontWeight: '800', color: '#283618' },
+  progressLbl:        { fontSize: 11, color: '#888', fontWeight: '600', marginTop: 2 },
+  progressDivider:    { width: 1, backgroundColor: '#E0E0E0' },
+
+  tabRow:             { flexDirection: 'row', marginHorizontal: 20, marginTop: 16, backgroundColor: '#F2F2F2', borderRadius: 12, padding: 4, gap: 4 },
+  tabBtn:             { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10 },
+  tabBtnActive:       { backgroundColor: '#606C38' },
+  tabLabel:           { fontSize: 14, fontWeight: '600', color: '#606C38' },
+  tabLabelActive:     { color: '#fff' },
+
+  hint:               { fontSize: 12, color: '#aaa', textAlign: 'center', marginTop: 14, marginBottom: 4 },
+
+  partList:           { paddingHorizontal: 20, marginTop: 4 },
+
+  partRow:            {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 14, paddingHorizontal: 14,
+    marginBottom: 10, borderRadius: 16,
+    borderWidth: 2, borderColor: '#F0F0F0',
+    backgroundColor: '#FAFAFA',
+  },
+  partRowSelected:    {
+    borderColor: '#606C38',
+    backgroundColor: '#F0F5E8',
+  },
+
+  partThumb:          { width: 48, height: 48, borderRadius: 12, backgroundColor: '#E8F0DC', justifyContent: 'center', alignItems: 'center', marginRight: 14 },
+  partThumbSelected:  { backgroundColor: '#606C38' },
+  partThumbDone:      { backgroundColor: '#A8C690' },
+
+  partInfo:           { flex: 1 },
+  partNum:            { fontSize: 11, color: '#999', fontWeight: '600', marginBottom: 2 },
+  partNumSelected:    { color: '#606C38' },
+  partLabel:          { fontSize: 15, fontWeight: '600', color: '#333' },
+  partLabelSelected:  { color: '#283618' },
+  partDoneTag:        { fontSize: 11, color: '#606C38', fontWeight: '700', marginTop: 3 },
+  partScore:          { fontSize: 11, color: '#888', fontWeight: '600', marginTop: 3 },
+
+  partArrow:          { width: 32, height: 32, borderRadius: 16, backgroundColor: '#F0F0F0', justifyContent: 'center', alignItems: 'center' },
+  partArrowSelected:  { backgroundColor: '#606C38' },
+
+  footer:             { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 34, paddingTop: 12, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#F0F0F0' },
+  selectedHint:       { fontSize: 12, color: '#606C38', fontWeight: '600', textAlign: 'center', marginBottom: 8 },
+  startBtn:           { paddingVertical: 18, borderRadius: 16, alignItems: 'center' },
+  startBtnLesson:     { backgroundColor: '#606C38' },
+  startBtnQuiz:       { backgroundColor: '#606C38' },
+  startBtnText:       { color: '#fff', fontSize: 17, fontWeight: '700' },
 });

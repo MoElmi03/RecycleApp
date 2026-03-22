@@ -323,7 +323,7 @@ export default function QuizPlayer() {
         ) : (
           <TouchableOpacity style={styles.nextBtn} onPress={goNext}>
             <Text style={styles.nextBtnText}>Next</Text>
-            <Feather name="chevron-right" size={22} color="#3D2B6B" />
+            <Feather name="chevron-right" size={22} color="#283618" />
           </TouchableOpacity>
         ))}
         {!answered && <View style={{ width: 80 }} />}
@@ -333,17 +333,17 @@ export default function QuizPlayer() {
 }
 
 const styles = StyleSheet.create({
-  container:         { flex: 1, backgroundColor: '#3D2B6B' },
+  container:         { flex: 1, backgroundColor: '#283618' },
   center:            { flex: 1, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', padding: 24 },
   errorText:         { fontSize: 18, color: '#333', marginBottom: 16, fontWeight: '600' },
-  backLinkBtn:       { backgroundColor: '#3D2B6B', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  backLinkBtn:       { backgroundColor: '#283618', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   backLinkText:      { color: '#fff', fontWeight: '700', fontSize: 15 },
   header:            { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 60, paddingHorizontal: 20, paddingBottom: 12 },
   backBtn:           { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' },
   qBadge:            { backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20 },
   qBadgeText:        { color: '#fff', fontWeight: '700', fontSize: 14 },
   progressTrack:     { height: 5, backgroundColor: 'rgba(255,255,255,0.15)', marginHorizontal: 20, borderRadius: 3 },
-  progressFill:      { height: 5, backgroundColor: '#A78BFA', borderRadius: 3 },
+  progressFill:      { height: 5, backgroundColor: '#FEFAE0', borderRadius: 3 },
   quizScroll:        { padding: 24, paddingBottom: 20 },
   questionText:      { fontSize: 24, fontWeight: '800', color: '#fff', textAlign: 'center', lineHeight: 34, marginVertical: 24 },
   optionsList:       { gap: 12 },
@@ -355,36 +355,36 @@ const styles = StyleSheet.create({
   explainToggleText: { color: '#FEFAE0', fontWeight: '600', fontSize: 13 },
   explanationBox:    { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 14, padding: 16, marginTop: 10 },
   explanationText:   { color: '#FEFAE0', fontSize: 14, lineHeight: 22 },
-  navRow:            { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 34, paddingTop: 8, backgroundColor: '#3D2B6B' },
+  navRow:            { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingBottom: 34, paddingTop: 8, backgroundColor: '#283618' },
   navBtn:            { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.1)' },
   navBtnDisabled:    { opacity: 0.4 },
   navBtnText:        { fontSize: 15, color: '#FEFAE0', fontWeight: '600', marginLeft: 4 },
   navBtnTextDisabled:{ opacity: 0.4 },
   nextBtn:           { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FEFAE0', paddingVertical: 14, paddingHorizontal: 28, borderRadius: 14 },
-  nextBtnText:       { fontSize: 16, color: '#3D2B6B', fontWeight: '800', marginRight: 6 },
+  nextBtnText:       { fontSize: 16, color: '#283618', fontWeight: '800', marginRight: 6 },
   finishBtn:         { backgroundColor: '#4CAF50', paddingVertical: 14, paddingHorizontal: 24, borderRadius: 14 },
   finishBtnText:     { fontSize: 15, color: '#fff', fontWeight: '800' },
-  resultsBg:         { flex: 1, backgroundColor: '#3D2B6B', justifyContent: 'center', alignItems: 'center', padding: 24 },
+  resultsBg:         { flex: 1, backgroundColor: '#283618', justifyContent: 'center', alignItems: 'center', padding: 24 },
   resultsCard:       { backgroundColor: '#fff', borderRadius: 28, padding: 32, width: '100%', alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 20, elevation: 8 },
   resultsEmoji:      { fontSize: 72, marginBottom: 8 },
   resultsTitle:      { fontSize: 26, fontWeight: '800', color: '#1A1A1A', marginBottom: 4 },
   resultsSub:        { fontSize: 14, color: '#888', marginBottom: 20 },
   scoreBig:          { alignItems: 'center', marginBottom: 12 },
-  scorePct:          { fontSize: 52, fontWeight: '900', color: '#3D2B6B' },
+  scorePct:          { fontSize: 52, fontWeight: '900', color: '#283618' },
   scoreDetail:       { fontSize: 14, color: '#888', marginTop: 2 },
   scoreBarTrack:     { height: 10, backgroundColor: '#F0F0F0', borderRadius: 5, width: '100%', marginBottom: 20, overflow: 'hidden' },
   scoreBarFill:      { height: 10, borderRadius: 5 },
   alreadyBadge:      { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E8F0DC', borderRadius: 12, padding: 12, marginBottom: 16, gap: 8, width: '100%' },
   alreadyText:       { flex: 1, fontSize: 12, color: '#606C38', fontWeight: '600' },
-  ptsBox:            { backgroundColor: '#EDE9FE', borderRadius: 16, paddingVertical: 14, paddingHorizontal: 28, alignItems: 'center', marginBottom: 16, width: '100%' },
-  ptsLabel:          { fontSize: 12, color: '#3D2B6B', fontWeight: '600', marginBottom: 2 },
-  ptsValue:          { fontSize: 32, fontWeight: '900', color: '#3D2B6B' },
+  ptsBox:            { backgroundColor: '#E8F0DC', borderRadius: 16, paddingVertical: 14, paddingHorizontal: 28, alignItems: 'center', marginBottom: 16, width: '100%' },
+  ptsLabel:          { fontSize: 12, color: '#283618', fontWeight: '600', marginBottom: 2 },
+  ptsValue:          { fontSize: 32, fontWeight: '900', color: '#283618' },
   perfectTag:        { fontSize: 12, color: '#606C38', fontWeight: '700', marginTop: 4 },
   challengeBanner:   { flexDirection: 'row', alignItems: 'center', backgroundColor: '#606C38', borderRadius: 12, padding: 12, marginBottom: 16, width: '100%', justifyContent: 'center' },
   challengeBannerText:{ color: '#fff', fontWeight: '700', fontSize: 13 },
   resultsActions:    { flexDirection: 'row', gap: 10, width: '100%', marginTop: 4 },
-  btnSecondary:      { flex: 1, borderWidth: 2, borderColor: '#3D2B6B', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
-  btnSecondaryText:  { color: '#3D2B6B', fontWeight: '700', fontSize: 14 },
-  btnRetry:          { flex: 1, backgroundColor: '#3D2B6B', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
+  btnSecondary:      { flex: 1, borderWidth: 2, borderColor: '#283618', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
+  btnSecondaryText:  { color: '#283618', fontWeight: '700', fontSize: 14 },
+  btnRetry:          { flex: 1, backgroundColor: '#283618', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
   btnRetryText:      { color: '#fff', fontWeight: '700', fontSize: 14 },
 });
